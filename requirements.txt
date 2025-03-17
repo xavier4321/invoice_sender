@@ -3,5 +3,4 @@ sendgrid==6.9.7
 python-dotenv==0.19.2
 pandas==1.4.4
 supabase==1.0.3
-weasyprint==52.5
 jinja2==3.0.3
