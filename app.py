@@ -1,8 +1,12 @@
 from flask import Flask, render_template, jsonify, request
-import os
-from send_invoice import process_invoices  # We'll create this function
+from send_invoice import process_invoices
 
 app = Flask(__name__)
+
+# Add this new route for Vercel's health check
+@app.route('/_vercel/deploy/health-check')
+def health_check():
+    return jsonify({"status": "ok"})
 
 @app.route('/')
 def home():
@@ -22,5 +26,6 @@ def send_invoices():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# Change this to handle both local and Vercel environments
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=3000)
