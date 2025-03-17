@@ -7,7 +7,7 @@ import pandas as pd
 from supabase import create_client
 from jinja2 import Template
 import base64
-# from weasyprint import HTML  # Comment this out temporarily
+from weasyprint import HTML  
 from io import BytesIO
 
 # Load your API keys
