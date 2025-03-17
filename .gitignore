@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Generated files
+active_users_*.csv
+
+# Environment
+.env
+.venv
+env/
+ENV/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store 

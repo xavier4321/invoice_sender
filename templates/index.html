@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Sender</title>
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --primary: 222.2 47.4% 11.2%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96.1%;
+            --muted: 210 40% 96.1%;
+            --accent: 210 40% 96.1%;
+            --radius: 0.5rem;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .button {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            min-width: min-content;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .button:active {
+            opacity: 0.8;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--radius);
+            background-color: hsl(var(--secondary));
+            text-align: left;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .button-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid hsl(var(--secondary));
+            border-top: 2px solid hsl(var(--primary));
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.25rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+            line-height: 1.5;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            border: 1px solid hsl(var(--primary) / 0.2);
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 1px hsl(var(--primary));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Basis Invoice Sender</h1>
+        <div class="form-group">
+            <label class="label">
+                This is the email where the invoices will be sent. No emails will be sent to any agencies unless their email is added here.
+            </label>
+            <input type="email" id="testEmail" class="input" required placeholder="Enter test email address">
+        </div>
+        <button id="sendButton" class="button">
+            <div class="button-content">
+                Send Invoices
+                <div id="spinner" class="spinner"></div>
+            </div>
+        </button>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        const button = document.getElementById('sendButton');
+        const spinner = document.getElementById('spinner');
+        const messageDiv = document.getElementById('message');
+        const emailInput = document.getElementById('testEmail');
+
+        button.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            if (!email) {
+                messageDiv.textContent = 'Please enter a test email address';
+                messageDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                button.disabled = true;
+                spinner.style.display = 'block';
+                button.innerHTML = `
+                    <div class="button-content">
+                        Sending
+                        <div id="spinner" class="spinner" style="display: block;"></div>
+                    </div>
+                `;
+                messageDiv.style.display = 'none';
+
+                const response = await fetch('/send-invoices', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await response.json();
+
+                messageDiv.textContent = data.output || data.message;
+                messageDiv.style.display = 'block';
+            } catch (error) {
+                messageDiv.textContent = 'Error: ' + error.message;
+                messageDiv.style.display = 'block';
+            } finally {
+                button.disabled = false;
+                button.innerHTML = `
+                    <div class="button-content">
+                        Send Invoices
+                        <div id="spinner" class="spinner"></div>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
